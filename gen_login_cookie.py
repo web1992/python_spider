@@ -20,7 +20,7 @@ postdata = urllib.urlencode({
     'source': 'movie',
     'login_type': 'sms',
     'redir': 'https://movie.douban.com/',
-    'form_password': 'dc6b65',# 手机验证码
+    'form_password': '18613a',# 手机验证码
 })
 # 登录豆瓣电影的URL
 loginUrl = 'https://accounts.douban.com/login'
