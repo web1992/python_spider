@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 """
-    谍影重重影评
+    谍影重重5 影评 爬虫
 """
 import re
 import urllib2
 
 import cookielib
+
+import time
+
 
 class douban_JasonBourne_spider(object):
     """
@@ -24,13 +27,25 @@ class douban_JasonBourne_spider(object):
         self._top_num = 1
         print "豆瓣电影爬虫准备就绪, 准备爬取数据..."
 
-    def get_page(self, startIndex):
+    def get_total_page(self):
         """
+            获取 此电影的总的影评条数
+        :return:
+        """
+        _url = 'https://movie.douban.com/subject/26266072/'
+        _page = urllib2.urlopen(_url).read().decode("utf-8")
+        _total_page = re.findall('<a\shref="https://movie.douban.com/subject/26266072/comments">(.*?)</a>', _page)
+        _total = re.findall('(\d{1,})', _total_page[0])
+        self.totalPage = int(_total[0])
+        print "total=", _total[0]
 
+    def get_page(self, start_index):
+        """
+            获取影评页面的内容
         """
         url = self.cur_url
         try:
-            _targetUrl=url.format(startIndex=startIndex, pageSize=self.pageSize)
+            _targetUrl = url.format(startIndex=start_index, pageSize=self.pageSize)
             print _targetUrl
             # my_page = urllib2.urlopen(_targetUrl).read().decode("utf-8")
             # 创建MozillaCookieJar实例对象
@@ -52,29 +67,40 @@ class douban_JasonBourne_spider(object):
                 print "Reason: %s" % e.reason
         return response.read()
 
-    def find_title(self, my_page):
+    def find_film_title(self, my_page):
         """
-
+            使用正则匹配 评分，用户ID，用户名，电影影评
         """
         temp_data = []
         movie_items = re.findall(r'<div\sclass="comment">(.*?)</div>', my_page, re.S)
 
         # print movie_items
         for index, item in enumerate(movie_items):
-            # 评分
+            # 评分 这个可用是空，如果是空，就设置为0 ，表示没有进行星星的评论
             _start = re.findall(r'allstar(\d{2})', item, re.S)
+
             # 用户的ID
-            _uid = re.findall(r'https://www.douban.com/people/(\d{9,20})', item, re.S)
+            _uid = re.findall(r'https://www.douban.com/people/(.*?)/', item, re.S)
             if _uid:
                 _unameRe = r'<a href="https://www.douban.com/people/{uid}/" class="">(.*?)</a>'.format(uid=_uid[0])
-            # 用户名
+                # 用户名
                 _uname = re.findall(_unameRe, item, re.S)
                 _contentReg = '<p class="">(.*?)</p>'
                 # 电影评论
                 _content = re.findall(_contentReg, item, re.S)
-
-                temp_data.append(_start[0]+"\t"+_uid[0]+"\t"+_uname[0]+"\t"+_content[0])
-
+                try:
+                    if not _start:
+                        _start.append('0')
+                    temp_data.append(
+                        _start[0] + "\t" + _uid[0] + "\t" + _uname[0] + "\t" + _content[0].replace("\n", "\t"))
+                except IndexError, e:
+                    # print '_start=%s _uid=%s _uname=%s _content=%s' % _start, _uid, _uname, _content
+                    print self.startIndex
+                    print _start
+                    print _uid
+                    print _uname
+                    print _content
+                    print e
         self.datas.extend(temp_data)
 
     def start_spider(self):
@@ -91,18 +117,22 @@ class douban_JasonBourne_spider(object):
 
         while self.page <= self.pageCount:
             my_page = self.get_page(self.startIndex)
-            self.find_title(my_page)
-            with open('douban_JasonBourne_yingping.txt','a')  as file:
+            self.find_film_title(my_page)
+            with open('douban_JasonBourne_yingping.txt', 'a') as _file:
                 for _item in self.datas:
-                    file.write(_item+"\n")
+                    _file.write(_item + "\n")
+            # 清空集合
+            self.datas = []
             self.page += 1
-            self.startIndex += self.pageSize+1
+            self.startIndex += self.pageSize + 1
+            # 睡眠10秒
+            time.sleep(1 * 10)
 
 
 def desc():
     print """
         ###############################
-            Desc: 电影影评抓取
+            Desc: <谍影重重5>电影影评抓取
             Author: web1992
             Version: 0.0.1
             Date: 2016-08-30
@@ -114,11 +144,12 @@ def main():
     desc()
 
     my_spider = douban_JasonBourne_spider()
+    my_spider.get_total_page()
     my_spider.start_spider()
 
-    for item in my_spider.datas:
-        print item
-    print "豆瓣 谍影重重 爬虫爬取结束..."
+    # for item in my_spider.datas:
+    #     print item
+    print "豆瓣 <谍影重重5> 爬虫爬取结束..."
 
 
 if __name__ == '__main__':
