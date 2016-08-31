@@ -26,7 +26,10 @@ Python spider 爬虫抓取`<谍影重重5>`豆瓣影评
 ### 其他
 可使用以下命令对影评进行 简单的统计，可统计出5星好评，4星评论，3星评论 ... 的比例
 
+	# 评论统计
     cat douban_JasonBourne_yingping.txt  |awk -F'\t' '{print $1}' |sort |uniq -c
+	# 总记录数
+	cat douban_JasonBourne_yingping.txt  |wc -l
 
 > 输出
 
@@ -36,6 +39,8 @@ Python spider 爬虫抓取`<谍影重重5>`豆瓣影评
     112 30
     116 40
      22 50
+
+5星好评的有22个，4星评论的有116 个，以此类推，总统计评论数= `9+14+27+112+116+22`
 
 说明：
 >50 力荐
