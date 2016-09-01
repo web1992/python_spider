@@ -8,6 +8,7 @@ import urllib2
 import urllib
 import cookielib
 
+
 class DouBanCookie:
     def __init__(self):
         # cookie 存放的文件
@@ -56,14 +57,24 @@ class DouBanCookie:
 
         # 模拟登录，并把cookie保存到变量
         result = opener.open(self.login_url, _post_data)
-        print 'result=', result.read()
+        print result.url
+        if 'OK' == str(result.msg):
+            if 'https://movie.douban.com' == str(result.url):
+                print 'sms login suc'
+
         # 保存cookie到cookie.txt中
         cookie.save(ignore_discard=True, ignore_expires=True)
+
         # 大于 210 页时，需要登录才能访问，这里如果 result 有返回的页面内容，则说cookie 登录正确
-        test_url = 'https://movie.douban.com/subject/26266072/comments?start=210&limit=20&sort=new_score'
-        # 发个请求
-        result = opener.open(test_url)
-        # print result.read()
+        try:
+            test_url = 'https://movie.douban.com/subject/26266072/comments?start=210&limit=20&sort=new_score'
+            # 发个请求
+            test_result = opener.open(test_url)
+            if test_result:
+                print 'test cookie suc'
+            # print test_result.read()
+        except urllib2.HTTPError, e:
+            print e
 
 
 if __name__ == '__main__':
@@ -72,4 +83,4 @@ if __name__ == '__main__':
     _douBan_cookie.input_user_name_pwd()
 
     _douBan_cookie.gen_cookie()
-    print 'gen cookie suc'
+    print 'gen cookie done'
