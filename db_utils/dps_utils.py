@@ -4,6 +4,9 @@
 """
      DPSUtils
 """
+import datetime
+from string import Template
+
 import requests
 
 
@@ -64,22 +67,112 @@ class DPSUtils:
         print 'login end ...'
         return s
 
+    @staticmethod
+    def get_arr_dates():
+        """
+            时间 昨天
+        """
+        #print 'get_yesterday_date ...'
+        yesterday_str = (datetime.datetime.now() + datetime.timedelta(days=-1)).strftime("%Y%m%d")
+        before_yesterday_mysql_str = (datetime.datetime.now() + datetime.timedelta(days=-2)).strftime("%Y-%m-%d")
+        order_date_of_easylink = (datetime.datetime.now() + datetime.timedelta(days=-1)).strftime("%y%m%d")
+        #print 'yesterday_str= ' + yesterday_str
+        #print 'before_yesterday_mysql_str= ' + before_yesterday_mysql_str
+        _arr = ["\'" + before_yesterday_mysql_str + "\'", yesterday_str,order_date_of_easylink]
+        return _arr
+
     def query_data(self):
         """
              登陆
             :return:
         """
-        if not self.s:
-            s = self.login()
-        print 'Query start ...'
 
-        query_post_data = {'sql': self.sql, 'db': self.db}
-        r2 = s.post(self.query_url, query_post_data)
+        _task_sql_file = open(r'task.sql')
+        _f_lines = _task_sql_file.readlines()
+        count = 0
+        for line in _f_lines:
+            #print line
+
+            if line.startswith("#"):
+                continue
+
+            if count == 0:
+                self.exe_sql(DPSUtils.format_jd_qp_sql(line))
+
+            if count == 1:
+                self.exe_sql(DPSUtils.format_easylink_sql(line))
+
+            if count == 2:
+                self.exe_sql(DPSUtils.format_baofoo_sql(line))
+
+            if count == 3:
+                self.exe_sql(DPSUtils.format_yiji_sql(line))
+
+            if count == 4:
+                self.exe_sql(DPSUtils.format_yiji_remit_sql(line))
+
+            if count == 5:
+                self.exe_sql(DPSUtils.format_jd_remit_sql(line))
+
+            count = count + 1
+
+    @staticmethod
+    def format_jd_qp_sql(sql):
+        print 'format_jd_qp_sql'
+        _values = DPSUtils.get_arr_dates()
+        _sql_template = Template(sql)
+        return _sql_template.substitute(date_format='\'%Y%m%d\'', mysql_date=_values[0], yesterday_str=_values[1])
+
+    @staticmethod
+    def format_easylink_sql(sql):
+        print 'format_easylink_sql'
+        _values = DPSUtils.get_arr_dates()
+        _sql_template = Template(sql)
+        return _sql_template.substitute(mysql_date=_values[0], order_date=_values[2])
+
+    @staticmethod
+    def format_baofoo_sql(sql):
+        print 'format_baofoo_sql'
+        _values = DPSUtils.get_arr_dates()
+        _sql_template = Template(sql)
+        return _sql_template.substitute(mysql_date=_values[0], order_date=_values[1])
+
+    @staticmethod
+    def format_yiji_sql(sql):
+        print 'format_yiji_sql'
+        _values = DPSUtils.get_arr_dates()
+        _sql_template = Template(sql)
+        return _sql_template.substitute(mysql_date=_values[0], order_date=_values[1])
+
+    @staticmethod
+    def format_yiji_remit_sql(sql):
+        print 'format_yiji_remit_sql'
+        _values = DPSUtils.get_arr_dates()
+        _sql_template = Template(sql)
+        return _sql_template.substitute(mysql_date=_values[0], order_date=_values[1])
+
+    @staticmethod
+    def format_jd_remit_sql(sql):
+        print 'format_jd_remit_sql'
+        _values = DPSUtils.get_arr_dates()
+        _sql_template = Template(sql)
+        return _sql_template.substitute(mysql_date=_values[0], order_date=_values[1])
+
+    def exe_sql(self, sql):
+        """
+        执行sql
+        :return:
+        """
+        if not self.s:
+            self.s = self.login()
+        #print 'Query start ...'
+        query_post_data = {'sql': sql, 'db': self.db}
+        r2 = self.s.post(self.query_url, query_post_data)
         resp_str = r2.text
         resp_lines = resp_str.split('+_-')
         for line in resp_lines:
             print line.replace('-_+', ' ')
-
+        print '#########################################'
 
 if __name__ == '__main__':
     dpsUtils = DPSUtils()
