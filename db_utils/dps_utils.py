@@ -23,6 +23,8 @@ class DPSUtils:
         self.read_config()
         # 如果配置文件没有,输入
         self.get_user_name_pwd()
+        # login
+        self.login()
 
     def read_config(self):
         # 初始化
@@ -62,10 +64,10 @@ class DPSUtils:
         """
         print 'login init ...'
         login_data = {'username': self.user_name, 'password': self.pwd}
-        s = requests.session()
-        s.post(self.login_url, login_data)
+        self.s = requests.session()
+        self.s.post(self.login_url, login_data)
         print 'login end ...'
-        return s
+        return  self.s
 
     @staticmethod
     def get_arr_dates():
@@ -163,8 +165,7 @@ class DPSUtils:
         执行sql
         :return:
         """
-        if not self.s:
-            self.s = self.login()
+
         # print 'Query start ...'
         query_post_data = {'sql': sql, 'db': self.db}
         r2 = self.s.post(self.query_url, query_post_data)
