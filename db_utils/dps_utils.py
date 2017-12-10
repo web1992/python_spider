@@ -72,13 +72,13 @@ class DPSUtils:
         """
             时间 昨天
         """
-        #print 'get_yesterday_date ...'
+        # print 'get_yesterday_date ...'
         yesterday_str = (datetime.datetime.now() + datetime.timedelta(days=-1)).strftime("%Y%m%d")
         before_yesterday_mysql_str = (datetime.datetime.now() + datetime.timedelta(days=-2)).strftime("%Y-%m-%d")
         order_date_of_easylink = (datetime.datetime.now() + datetime.timedelta(days=-1)).strftime("%y%m%d")
-        #print 'yesterday_str= ' + yesterday_str
-        #print 'before_yesterday_mysql_str= ' + before_yesterday_mysql_str
-        _arr = ["\'" + before_yesterday_mysql_str + "\'", yesterday_str,order_date_of_easylink]
+        # print 'yesterday_str= ' + yesterday_str
+        # print 'before_yesterday_mysql_str= ' + before_yesterday_mysql_str
+        _arr = ["\'" + before_yesterday_mysql_str + "\'", yesterday_str, order_date_of_easylink]
         return _arr
 
     def query_data(self):
@@ -91,7 +91,7 @@ class DPSUtils:
         _f_lines = _task_sql_file.readlines()
         count = 0
         for line in _f_lines:
-            #print line
+            # print line
 
             if line.startswith("#"):
                 continue
@@ -165,14 +165,22 @@ class DPSUtils:
         """
         if not self.s:
             self.s = self.login()
-        #print 'Query start ...'
+        # print 'Query start ...'
         query_post_data = {'sql': sql, 'db': self.db}
         r2 = self.s.post(self.query_url, query_post_data)
         resp_str = r2.text
         resp_lines = resp_str.split('+_-')
+        _f = open('log.txt', 'a')
+        _f.write(sql + '\n')
         for line in resp_lines:
-            print line.replace('-_+', ' ')
+            _result = line.replace('-_+', ' ')
+            print _result
+            _f.write(_result)
+            _f.write('\n')
+        _f.write('\n')
+
         print '#########################################'
+
 
 if __name__ == '__main__':
     dpsUtils = DPSUtils()
