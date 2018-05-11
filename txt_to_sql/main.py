@@ -16,7 +16,7 @@ class TxtSQL:
 
     def get_template(self):
         print 'get_template'
-        _base_table  = '''
+        _base_table = '''
             CREATE TABLE `${table_name}` (
                 `oid` BIGINT(20) NOT NULL AUTO_INCREMENT,
                 ${fields}
@@ -33,34 +33,36 @@ class TxtSQL:
         '''
         return Template(_base_table)
 
+
 if __name__ == '__main__':
 
     _table_name = 'test_table'
     _table_comment = 'test'
-    _filed_str =''
-    _filed_comment='`${filed}` VARCHAR(200) DEFAULT NULL COMMENT \'${comment}\',\n'
+    _filed_str = ''
+    _filed_comment = '`${filed}` VARCHAR(200) DEFAULT NULL COMMENT \'${comment}\',\n'
 
-    
-    _field_list=[]
-    with open(r'/Users/zl/Documents/code/python_utils/txt_to_sql/txt_sql.txt')  as f:
+    _field_list = []
+    with open(r'/Users/zl/Documents/code/python_utils/txt_to_sql/txt_sql.txt') as f:
         _list = f.readlines()
-    for line in _list:  
+    for line in _list:
         #print line
-        _fileds= line.split()
+        _fileds = line.split()
         _comment_template = Template(_filed_comment)
-        _comment_str = _comment_template.substitute(comment=_fileds[0],filed=_fileds[1])
+        _comment_str = _comment_template.substitute(
+            comment=_fileds[0], filed=_fileds[1])
         #print _comment_str
         _field_list.append(_comment_str)
-    
+
     txtSQL = TxtSQL()
     _sql_template = txtSQL.get_template()
-    _field_str=''
+    _field_str = ''
     for f in _field_list:
         _field_str = (f+_field_str)
-    _table_template = _sql_template.substitute(table_name=_table_name,comment=_table_comment,fields=_field_str)
-    print 'len=',len(_field_list)
+    _table_template = _sql_template.substitute(
+        table_name=_table_name, comment=_table_comment, fields=_field_str)
+    print 'len=', len(_field_list)
 
     #print _table_template
-    with open('/Users/zl/Documents/code/python_utils/txt_to_sql/result-readline.txt','w') as _resulet_f:
+    with open('/Users/zl/Documents/code/python_utils/txt_to_sql/sql_result.txt', 'w') as _resulet_f:
         _resulet_f.write(_table_template)
     print 'gen template done ...'
