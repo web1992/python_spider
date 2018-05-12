@@ -2,7 +2,8 @@
 # -*- coding:utf-8 -*-
 
 """
-     TxtSQL
+     TxtToSQL
+     根据模版和字段文件生成sql语句
 """
 import datetime
 from string import Template
@@ -13,6 +14,10 @@ class TxtToSQL:
 
     def __init__(self):
         print 'init'
+
+    """
+        table 模版
+    """
 
     def get_table_template(self):
         print 'get_template'
@@ -33,9 +38,17 @@ class TxtToSQL:
         '''
         return Template(_base_table)
 
+    """
+        字段模版
+    """
+
     def get_field_template(self):
         _field_comment = '`${filed}` VARCHAR(256) DEFAULT NULL COMMENT \'${comment}\',\n'
         return Template(_field_comment)
+
+    """
+        字段文件读取
+    """
 
     def get_fields(self):
         print 'get_fields'
@@ -59,21 +72,23 @@ class TxtToSQL:
     @staticmethod
     def convert_filed(_filed_str):
         #print 'conver_filed'
-        _temp_str=''
+        _temp_str = ''
         if str(_filed_str).find('_') != -1:
             return _filed_str
         else:
             for _index in range(len(_filed_str)):
-                _ch =  str(_filed_str[_index])
+                _ch = str(_filed_str[_index])
                 if _ch.isupper():
-                   _temp_str+=('_'+_ch.lower())
+                    _temp_str += ('_'+_ch.lower())
                 else:
-                    _temp_str+=_ch
+                    _temp_str += _ch
 
         return _temp_str
 
 
-
+"""
+    main
+"""
 if __name__ == '__main__':
 
     txtToSQL = TxtToSQL()
@@ -84,7 +99,7 @@ if __name__ == '__main__':
     _sql_template = txtToSQL.get_table_template()
     _field_str = ''
     for f in txtToSQL.get_fields():
-        _field_str+=f
+        _field_str += f
 
     _table_template = _sql_template.substitute(
         table_name=_table_name, comment=_table_comment, fields=_field_str)
