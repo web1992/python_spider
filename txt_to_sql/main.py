@@ -9,12 +9,12 @@ from string import Template
 import re
 
 
-class TxtSQL:
+class TxtToSQL:
 
     def __init__(self):
         print 'init'
 
-    def get_template(self):
+    def get_table_template(self):
         print 'get_template'
         _base_table = '''
             CREATE TABLE `${table_name}` (
@@ -33,36 +33,63 @@ class TxtSQL:
         '''
         return Template(_base_table)
 
+    def get_field_template(self):
+        _field_comment = '`${filed}` VARCHAR(256) DEFAULT NULL COMMENT \'${comment}\',\n'
+        return Template(_field_comment)
+
+    def get_fields(self):
+        print 'get_fields'
+        _field_list = []
+        with open(r'/Users/zl/Documents/code/python_utils/txt_to_sql/txt_sql.txt') as f:
+            _list = f.readlines()
+        for line in _list:
+            #print line
+            _fileds = line.split()
+            _f = TxtToSQL.convert_filed(_fileds[1])
+            _comment_template = txtToSQL.get_field_template()
+            _comment_str = _comment_template.substitute(
+                comment=_fileds[0], filed=_f)
+            #print _comment_str
+            _field_list.append(_comment_str)
+        return _field_list
+
+    """
+        转化字段命名
+    """
+    @staticmethod
+    def convert_filed(_filed_str):
+        #print 'conver_filed'
+        _temp_str=''
+        if str(_filed_str).find('_') != -1:
+            return _filed_str
+        else:
+            for _index in range(len(_filed_str)):
+                _ch =  str(_filed_str[_index])
+                if _ch.isupper():
+                   _temp_str+=('_'+_ch.lower())
+                else:
+                    _temp_str+=_ch
+
+        return _temp_str
+
+
 
 if __name__ == '__main__':
 
+    txtToSQL = TxtToSQL()
+
     _table_name = 'test_table'
     _table_comment = 'test'
-    _filed_str = ''
-    _filed_comment = '`${filed}` VARCHAR(200) DEFAULT NULL COMMENT \'${comment}\',\n'
 
-    _field_list = []
-    with open(r'/Users/zl/Documents/code/python_utils/txt_to_sql/txt_sql.txt') as f:
-        _list = f.readlines()
-    for line in _list:
-        #print line
-        _fileds = line.split()
-        _comment_template = Template(_filed_comment)
-        _comment_str = _comment_template.substitute(
-            comment=_fileds[0], filed=_fileds[1])
-        #print _comment_str
-        _field_list.append(_comment_str)
-
-    txtSQL = TxtSQL()
-    _sql_template = txtSQL.get_template()
+    _sql_template = txtToSQL.get_table_template()
     _field_str = ''
-    for f in _field_list:
-        _field_str = (f+_field_str)
+    for f in txtToSQL.get_fields():
+        _field_str+=f
+
     _table_template = _sql_template.substitute(
         table_name=_table_name, comment=_table_comment, fields=_field_str)
-    print 'len=', len(_field_list)
 
-    #print _table_template
-    with open('/Users/zl/Documents/code/python_utils/txt_to_sql/sql_result.txt', 'w') as _resulet_f:
+    with open('/Users/zl/Documents/code/python_utils/txt_to_sql/sql_result.sql', 'w') as _resulet_f:
         _resulet_f.write(_table_template)
+
     print 'gen template done ...'

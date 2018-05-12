@@ -27,3 +27,4 @@ json字符串	buyer_info
 账户类型	payee_account_type
 支付工具	pay_tool
 交易过期关单时间	trade_expiry
+我是测试    createDate
