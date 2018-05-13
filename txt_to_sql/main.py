@@ -71,9 +71,9 @@ class TxtToSQL:
     """
     @staticmethod
     def convert_filed(_filed_str):
-        #print 'conver_filed'
         _temp_str = ''
-        if str(_filed_str).find('_') != -1:
+        # if str(_filed_str).find('_') != -1:
+        if '_' in str(_filed_str):
             return _filed_str
         else:
             for _index in range(len(_filed_str)):
@@ -82,7 +82,7 @@ class TxtToSQL:
                     _temp_str += ('_'+_ch.lower())
                 else:
                     _temp_str += _ch
-
+            print 'conver_filed', _filed_str, '-> ', _temp_str
         return _temp_str
 
 
