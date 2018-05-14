@@ -14,6 +14,7 @@ class TxtToSQL:
 
     def __init__(self):
         print 'init'
+        self.base_url = 'F:/github/python_spider/txt_to_sql/'
 
     """
         table 模版
@@ -53,7 +54,7 @@ class TxtToSQL:
     def get_fields(self):
         print 'get_fields'
         _field_list = []
-        with open(r'/Users/zl/Documents/code/python_utils/txt_to_sql/txt_sql.txt') as f:
+        with open(self.base_url+'txt_sql.txt') as f:
             _list = f.readlines()
         for line in _list:
             #print line
@@ -104,7 +105,7 @@ if __name__ == '__main__':
     _table_template = _sql_template.substitute(
         table_name=_table_name, comment=_table_comment, fields=_field_str)
 
-    with open('/Users/zl/Documents/code/python_utils/txt_to_sql/sql_result.sql', 'w') as _resulet_f:
+    with open(txtToSQL.base_url+'sql_result.sql', 'w') as _resulet_f:
         _resulet_f.write(_table_template)
 
     print 'gen template done ...'
