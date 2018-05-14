@@ -49,11 +49,15 @@ class TxtToSQL:
 
     """
         字段文件读取
+        文件格式：
+                 # 创建时间    createDate
+                 # 更新时间    update_date
     """
 
     def get_fields(self):
         print 'get_fields'
         _field_list = []
+       
         with open(self.base_url+'web1992_txt_sql.txt') as f:
             _list = f.readlines()
         for line in _list:
