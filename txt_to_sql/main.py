@@ -57,12 +57,15 @@ class TxtToSQL:
     def get_fields(self):
         print 'get_fields'
         _field_list = []
-       
+
         with open(self.base_url+'web1992_txt_sql.txt') as f:
             _list = f.readlines()
         for line in _list:
             #print line
             _fileds = line.split()
+            if len(_fileds) < 2:
+                print 'line skip', line
+                continue
             _f = TxtToSQL.convert_filed(_fileds[1])
             _comment_template = txtToSQL.get_field_template()
             _comment_str = _comment_template.substitute(
